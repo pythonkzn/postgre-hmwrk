@@ -32,7 +32,8 @@ def get_students(course_id): # возвращает студентов опре�
                           SELECT STUDENT_ID FROM STUDENT_COURSE WHERE COURSE_ID = %s
                            ''', (course_id))
             data = cur.fetchall()
-            get_student(data[0])
+            for item in data:
+                get_student(item)
 
 
 def add_students(course_id, students): # создает студентов из записывает их на курс
