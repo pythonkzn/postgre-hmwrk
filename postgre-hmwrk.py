@@ -6,14 +6,14 @@ def create_db():  # создает таблицы
        with con.cursor() as cur:
            cur.execute('''
            CREATE TABLE student (
-           id integer PRIMARY KEY,
+           id serial PRIMARY KEY,
            name character varying(100),
            gpa numeric(10,2),
            birth timestamp with time zone
            );
 
            CREATE TABLE course (
-           id integer PRIMARY KEY,
+           id serial PRIMARY KEY,
            name character varying(100) 
            );
            
@@ -39,21 +39,26 @@ def add_students(course_id, students): # создает студентов из 
     with psycopg2.connect(dbname='hmwrkpostgre', user='postgres', password='1234') as con:
         with con.cursor() as cur:
             cur.execute('''
-               INSERT INTO student VALUES (%s, %s, %s, %s)
-               ''', (students['id'], students['name'], students['gpa'], students['birth'])
+               INSERT INTO student VALUES (default, %s, %s, %s)
+               ''', (students['name'], students['gpa'], students['birth'])
                )
             cur.execute('''
-               INSERT INTO student_course(id, student_id, course_id) VALUES (default,%s, %s)
-               ''', (students['id'], course_id)
+               SELECT ID FROM STUDENT WHERE NAME = %s
+               ''', (students['name'],)
                )
+            data = cur.fetchall()
+            cur.execute('''
+                INSERT INTO student_course VALUES (default, %s, %s)
+                ''', (data[0], course_id)
+                        )
 
 
 def add_student(student):  # просто создает студента
     with psycopg2.connect(dbname='hmwrkpostgre', user='postgres', password='1234') as con:
         with con.cursor() as cur:
             cur.execute('''
-               INSERT INTO student VALUES (%s, %s, %s, %s)
-               ''', (student['id'], student['name'], student['gpa'], student['birth'])
+               INSERT INTO student VALUES (default, %s, %s, %s)
+               ''', (student['name'], student['gpa'], student['birth'])
                )
 
 
@@ -69,11 +74,11 @@ def get_student(student_id):
 
 def main():
     #create_db()
-    student_dict = {'id': '2', 'name': 'Володя Володин', 'gpa': '7', 'birth': '2000-04-04 20:00:00-07'}
+    student_dict = {'name': 'Митя Митин', 'gpa': '7', 'birth': '2000-04-04 20:00:00-07'}
     #add_student(student_dict)
-    #get_student('2')
-    #add_students('4', student_dict)
-    #get_students('4')
+    #get_student('8')
+    #add_students('1', student_dict)
+    get_students('1')
 
 
 if __name__ == "__main__":
